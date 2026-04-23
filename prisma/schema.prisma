@@ -1,0 +1,47 @@
+/*
+  Reference schema for API Key Expiry Tracker.
+  This project intentionally uses direct SQL via `pg` in `lib/db.ts` to avoid ORM build/runtime coupling.
+
+  Runtime tables:
+
+  CREATE TABLE api_keys (
+    id TEXT PRIMARY KEY,
+    owner_id TEXT NOT NULL,
+    service_name TEXT NOT NULL,
+    key_name TEXT NOT NULL,
+    key_reference TEXT,
+    notes TEXT,
+    expires_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  );
+
+  CREATE TABLE notification_settings (
+    owner_id TEXT PRIMARY KEY,
+    email TEXT,
+    webhook_url TEXT,
+    reminder_days INTEGER[] NOT NULL DEFAULT ARRAY[30,14,7,3,1],
+    notifications_enabled BOOLEAN NOT NULL DEFAULT TRUE,
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  );
+
+  CREATE TABLE notification_events (
+    id TEXT PRIMARY KEY,
+    owner_id TEXT NOT NULL,
+    api_key_id TEXT NOT NULL,
+    day_threshold INTEGER NOT NULL,
+    channel TEXT NOT NULL,
+    sent_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    UNIQUE (owner_id, api_key_id, day_threshold, channel)
+  );
+
+  CREATE TABLE purchases (
+    id TEXT PRIMARY KEY,
+    email TEXT NOT NULL,
+    status TEXT NOT NULL,
+    stripe_event_id TEXT UNIQUE,
+    stripe_checkout_session_id TEXT UNIQUE,
+    paid_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  );
+*/
